@@ -15,7 +15,20 @@ jobs:
           path: angle_ios
           key: angle-ios-${{ hashFiles('scripts/angle_derle.sh') }}
       - name: Build
-        run: bash scripts/derle.sh
+        shell: bash
+        run: |
+          set -o pipefail
+          bash scripts/derle.sh 2>&1 | tee derleme.log
+      - name: Error summary
+        if: failure()
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          lines = open('derleme.log', errors='replace').read().splitlines()
+          tail = chr(10).join(l[:300] for l in lines[-80:])
+          tail = tail.replace('%', '%25').replace(chr(13), '').replace(chr(10), '%0A')
+          print('::error title=build tail::' + tail)
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: AngleIOSTest
