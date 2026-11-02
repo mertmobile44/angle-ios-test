@@ -3,6 +3,8 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
+permissions:
+  contents: write
 jobs:
   ios:
     runs-on: macos-14
@@ -42,3 +44,14 @@ jobs:
         with:
           name: AngleIOSTest
           path: cikti/
+      - name: Publish prebuilt ANGLE (release asset, public download)
+        if: success()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          C=$(cut -c1-12 angle_ios/ANGLE_COMMIT.txt)
+          (cd angle_ios && zip -qry ../angle_ios.zip libEGL.framework libGLESv2.framework include ANGLE_COMMIT.txt)
+          if ! gh release view "angle-$C" >/dev/null 2>&1; then
+            gh release create "angle-$C" angle_ios.zip --title "ANGLE iOS arm64 Metal $C" --notes "Prebuilt by CI (libEGL/libGLESv2 frameworks + headers)" --latest
+          fi
