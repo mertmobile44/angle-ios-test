@@ -1,0 +1,22 @@
+name: build
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+jobs:
+  ios:
+    runs-on: macos-14
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - name: ANGLE cache
+        uses: actions/cache@v4
+        with:
+          path: angle_ios
+          key: angle-ios-${{ hashFiles('scripts/angle_derle.sh') }}
+      - name: Build
+        run: bash scripts/derle.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AngleIOSTest
+          path: cikti/
