@@ -13,6 +13,8 @@ cd "$IS"
 [ -d depot_tools ] || git clone --depth 1 https://chromium.googlesource.com/chromium/tools/depot_tools.git
 export PATH="$IS/depot_tools:$PATH"
 export DEPOT_TOOLS_UPDATE=0
+# Otomatik guncelleme kapali oldugundan ilk kurulum elle yapilir (python3_bin_reldir.txt vb.; 2026-11-02 bulut hatasi)
+"$IS/depot_tools/ensure_bootstrap"
 if [ ! -d angle ]; then
   git clone https://chromium.googlesource.com/angle/angle
 fi
