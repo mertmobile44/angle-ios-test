@@ -5,7 +5,7 @@ on:
     branches: [main]
 jobs:
   ios:
-    runs-on: macos-15
+    runs-on: macos-14
     timeout-minutes: 300
     steps:
       - uses: actions/checkout@v4
@@ -14,8 +14,15 @@ jobs:
         with:
           path: angle_ios
           key: angle-ios-${{ hashFiles('scripts/angle_derle.sh') }}
-      - name: Toolchain
-        run: xcodebuild -version && xcrun --sdk iphoneos --show-sdk-version && xcrun --sdk macosx --show-sdk-version
+      - name: Toolchain (Xcode 16 for macOS 15+ SDK)
+        shell: bash
+        run: |
+          ls -d /Applications/Xcode*.app
+          X=$(ls -d /Applications/Xcode_16*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$X" ]; then sudo xcode-select -s "$X/Contents/Developer"; fi
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+          xcrun --sdk macosx --show-sdk-version
       - name: Build
         shell: bash
         run: |
